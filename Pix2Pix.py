@@ -14,6 +14,8 @@ import numpy as np
 torch.backends.cudnn.benchmark = True
 
 # Dicriminator model definition
+
+
 class Discriminator(nn.Module):
     def __init__(self, in_channels=3) -> None:
         super().__init__()
@@ -240,6 +242,14 @@ class SplitData(Dataset):
         return input_image, target_image
 
 
+def get_l1_loss(weights):
+    return torch.abs(weights).sum()
+
+
+def get_l2_loss(weights):
+    return torch.square(weights).sum()
+
+
 def train_fn(
     disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, gen_scaler, disc_scaler,
 ) -> None:
@@ -267,9 +277,13 @@ def train_fn(
         with torch.cuda.amp.autocast():
             Disc_fake = disc(x, y_fake)
             Gen_fake_loss = bce(Disc_fake, torch.ones_like(Disc_fake))
-            L1 =  l1_loss(y_fake, y) * config.LAMBDA
-            # loss = torch.nn.HuberLoss()
-            Gen_loss = Gen_fake_loss + L1
+            l1 =  l1_loss(y_fake, y) * config.LAMBDA
+            params = []
+            for param in disc.parameters():
+                params.append(param.view(-1))
+            # l1 = config.LAMBDA * get_l1_loss(torch.cat(params))
+            l2 = config.LAMBDA * get_l2_loss(torch.cat(params))
+            Gen_loss = Gen_fake_loss + l1 + l2
 
         opt_gen.zero_grad()
         gen_scaler.scale(Gen_loss).backward()
@@ -303,7 +317,7 @@ def _getGenCheckpointPath(modelname):
 def main(args) -> None:
     # get data from the command line arguments
     config.LOAD_MODEL = True if args.mode == True else False
-    config.FLIP_TRAIN = True if args.flip.lower() == 'true' else False
+    config.FLIP_TRAIN = True if str(args.flip).lower() == 'true' else False
     config.NUM_EPOCHS = int(
         args.epochs) if args.epochs != None else config.NUM_EPOCHS
     config.MODE = args.mode if args.mode != None else config.MODE
@@ -339,9 +353,8 @@ def main(args) -> None:
     val_itr = iter(val_loader)
 
     for epoch in range(1, config.NUM_EPOCHS+1):
-        print('Epoch: {}/{}'.format(epoch, config.NUM_EPOCHS))
-
         if(config.MODE == 'train'):
+            print('Epoch: {}/{}'.format(epoch, config.NUM_EPOCHS))
             train_fn(
                 disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, gen_scaler, disc_scaler,
             )
@@ -351,19 +364,21 @@ def main(args) -> None:
                 gen, opt_gen, filename=_getGenCheckpointPath(args.modelname))
             save_checkpoint(
                 disc, opt_disc, filename=_getDiscCheckpointPath(args.modelname))
-
-        x, y = next(val_itr)
-        # get_test_samples(gen, x, y, epoch, folder="evaluation")
-        x, y = x.to(config.DEVICE), y.to(config.DEVICE)
-        folder = "evaluation"
-        gen.eval()
-        with torch.no_grad():
-            y_fake = gen(x)
-            y_fake = y_fake * 0.5 + 0.5
-            save_image(y_fake, folder + f"/y_gen_{epoch}.png")
-            save_image(x * 0.5 + 0.5, folder + f"/input_{epoch}.png")
-            save_image(y * 0.5 + 0.5, folder + f"/label_{epoch}.png")
-        gen.train()
+        try:
+            x, y = next(val_itr)
+            # get_test_samples(gen, x, y, epoch, folder="evaluation")
+            x, y = x.to(config.DEVICE), y.to(config.DEVICE)
+            folder = "evaluation"
+            gen.eval()
+            with torch.no_grad():
+                y_fake = gen(x)
+                y_fake = y_fake * 0.5 + 0.5
+                save_image(y_fake, folder + f"/y_gen_{epoch}.png")
+                save_image(x * 0.5 + 0.5, folder + f"/input_{epoch}.png")
+                save_image(y * 0.5 + 0.5, folder + f"/label_{epoch}.png")
+            gen.train()
+        except:
+            pass
 
 
 if __name__ == "__main__":
