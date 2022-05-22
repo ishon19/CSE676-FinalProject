@@ -1,7 +1,7 @@
 # Deep Learning (CSE-676) Spring 2022 Group Project 
 
 ## Introduction
-This is the repo for the Deep Learning group project. We have implemented <a href="https://github.com/phillipi/pix2pix" target="_blank">Pix2Pix</a> conditional adversarial network using Pytorch and have used different datasets to test and validate our implementation, details mentioned below.
+This is the repo for the Deep Learning group project. We have implemented <a href="https://arxiv.org/pdf/1611.07004.pdf" target="_blank">Pix2Pix</a> conditional adversarial network using Pytorch and have used different datasets to test and validate our implementation, details mentioned below.
 
 ## Setup 
 For running the project locally, we need following 
