@@ -278,12 +278,12 @@ def train_fn(
             Disc_fake = disc(x, y_fake)
             Gen_fake_loss = bce(Disc_fake, torch.ones_like(Disc_fake))
             l1 =  l1_loss(y_fake, y) * config.LAMBDA
-            params = []
-            for param in disc.parameters():
-                params.append(param.view(-1))
+            # params = []
+            # for param in disc.parameters():
+            #     params.append(param.view(-1))
             # l1 = config.LAMBDA * get_l1_loss(torch.cat(params))
-            l2 = config.LAMBDA * get_l2_loss(torch.cat(params))
-            Gen_loss = Gen_fake_loss + l1 + l2
+            # l2 = config.LAMBDA * get_l2_loss(torch.cat(params))
+            Gen_loss = Gen_fake_loss + l1
 
         opt_gen.zero_grad()
         gen_scaler.scale(Gen_loss).backward()
@@ -316,7 +316,7 @@ def _getGenCheckpointPath(modelname):
 
 def main(args) -> None:
     # get data from the command line arguments
-    config.LOAD_MODEL = True if args.mode == True else False
+    config.LOAD_MODEL = True if str(args.mode).lower() == 'true' else False
     config.FLIP_TRAIN = True if str(args.flip).lower() == 'true' else False
     config.NUM_EPOCHS = int(
         args.epochs) if args.epochs != None else config.NUM_EPOCHS
