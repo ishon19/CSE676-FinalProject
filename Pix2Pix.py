@@ -333,10 +333,10 @@ def main(args) -> None:
 
     if config.LOAD_MODEL:
         load_checkpoint(
-            config.CHECKPOINT_GEN, gen, opt_gen, config.LEARNING_RATE,
+            _getGenCheckpointPath(args.modelname), gen, opt_gen, config.LEARNING_RATE,
         )
         load_checkpoint(
-            config.CHECKPOINT_DISC, disc, opt_disc, config.LEARNING_RATE,
+            _getDiscCheckpointPath(args.modelname), disc, opt_disc, config.LEARNING_RATE,
         )
 
     train_dataset = SplitData(root_dir=_getTrainDirectoryPath(args.modelname))
