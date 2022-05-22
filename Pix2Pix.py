@@ -277,7 +277,7 @@ def train_fn(
         with torch.cuda.amp.autocast():
             Disc_fake = disc(x, y_fake)
             Gen_fake_loss = bce(Disc_fake, torch.ones_like(Disc_fake))
-            l1 =  l1_loss(y_fake, y) * config.LAMBDA
+            l1 = l1_loss(y_fake, y) * config.LAMBDA
             # params = []
             # for param in disc.parameters():
             #     params.append(param.view(-1))
@@ -316,7 +316,7 @@ def _getGenCheckpointPath(modelname):
 
 def main(args) -> None:
     # get data from the command line arguments
-    config.LOAD_MODEL = True if str(args.mode).lower() == 'true' else False
+    config.LOAD_MODEL = True if str(args.loadmodel).lower() == 'true' else False
     config.FLIP_TRAIN = True if str(args.flip).lower() == 'true' else False
     config.NUM_EPOCHS = int(
         args.epochs) if args.epochs != None else config.NUM_EPOCHS
@@ -331,12 +331,18 @@ def main(args) -> None:
     BCE = nn.BCEWithLogitsLoss()
     L1_LOSS = nn.L1Loss()
 
+    print('saved gen checkpoint path: ', _getGenCheckpointPath(args.modelname))
+    print('saved disc checkpoint path: ',
+          _getDiscCheckpointPath(args.modelname))
+    print('Load model value: ', config.LOAD_MODEL, type(config.LOAD_MODEL))
     if config.LOAD_MODEL:
         load_checkpoint(
-            _getGenCheckpointPath(args.modelname), gen, opt_gen, config.LEARNING_RATE,
+            _getGenCheckpointPath(
+                args.modelname), gen, opt_gen, config.LEARNING_RATE,
         )
         load_checkpoint(
-            _getDiscCheckpointPath(args.modelname), disc, opt_disc, config.LEARNING_RATE,
+            _getDiscCheckpointPath(
+                args.modelname), disc, opt_disc, config.LEARNING_RATE,
         )
 
     train_dataset = SplitData(root_dir=_getTrainDirectoryPath(args.modelname))
@@ -392,6 +398,7 @@ if __name__ == "__main__":
                            help='start in train or test mode')
     argparser.add_argument("--epochs", default=50,
                            help="number of epochs to train")
+    argparser.add_argument("--loadmodel", default=1, help='load model or not')
     args = argparser.parse_args()
     print(args)
 
