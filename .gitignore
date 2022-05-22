@@ -2,3 +2,4 @@ data/
 evaluation/
 *disc.pth.tar
 *gen.pth.tar
+*.zip
