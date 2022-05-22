@@ -13,7 +13,7 @@ import numpy as np
 
 torch.backends.cudnn.benchmark = True
 
-# model definition
+# Dicriminator model definition
 class Discriminator(nn.Module):
     def __init__(self, in_channels=3) -> None:
         super().__init__()
@@ -49,6 +49,7 @@ class Discriminator(nn.Module):
 
 # generator class definition
 class Generator(nn.Module):
+    # U-NET encoder section
     def encoder(self, in_channels, out_channel, is_relu=False, need_batch_norm=True):
         x = nn.Sequential(
             nn.Conv2d(in_channels, out_channel, 4, 2, 1,
@@ -58,6 +59,7 @@ class Generator(nn.Module):
         )
         return x
 
+    # # U-NET decoder section
     def decoder(self, in_channels, out_channel, is_relu=False, need_batch_norm=True, need_dropout=True, ):
         return nn.Sequential(
             nn.ConvTranspose2d(in_channels, out_channel, 4, 2, 1, bias=False),
@@ -132,6 +134,7 @@ class Generator(nn.Module):
         layer14 = self.layer14(torch.cat([layer13, layer2], 1))
 
         return self.layer15(torch.cat([layer14, layer1], 1))
+
 
 # global class for constants and hyperparameters
 class config:
