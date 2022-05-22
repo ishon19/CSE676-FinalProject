@@ -359,11 +359,11 @@ def main(args) -> None:
                 disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, gen_scaler, disc_scaler,
             )
 
-        if config.SAVE_MODEL and epoch % 5 == 0:
-            save_checkpoint(
-                gen, opt_gen, filename=_getGenCheckpointPath(args.modelname))
-            save_checkpoint(
-                disc, opt_disc, filename=_getDiscCheckpointPath(args.modelname))
+            if config.SAVE_MODEL and epoch % 5 == 0:
+                save_checkpoint(
+                    gen, opt_gen, filename=_getGenCheckpointPath(args.modelname))
+                save_checkpoint(
+                    disc, opt_disc, filename=_getDiscCheckpointPath(args.modelname))
         try:
             x, y = next(val_itr)
             # get_test_samples(gen, x, y, epoch, folder="evaluation")
