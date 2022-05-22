@@ -219,7 +219,7 @@ class SplitData(Dataset):
         return input_image, target_image
 
 def train_fn(
-    disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, g_scaler, d_scaler,
+    disc, gen, loader, opt_disc, opt_gen, l1_loss, bce, gen_scaler, disc_scaler,
 ) -> None:
     loop = tqdm(loader, leave=True)
 
@@ -230,34 +230,34 @@ def train_fn(
         # Train Discriminator
         with torch.cuda.amp.autocast():
             y_fake = gen(x)
-            D_real = disc(x, y)
-            D_real_loss = bce(D_real, torch.ones_like(D_real))
-            D_fake = disc(x, y_fake.detach())
-            D_fake_loss = bce(D_fake, torch.zeros_like(D_fake))
-            D_loss = (D_real_loss + D_fake_loss) / 2
+            Disc_real = disc(x, y)
+            Disc_real_loss = bce(Disc_real, torch.ones_like(Disc_real))
+            Disc_fake = disc(x, y_fake.detach())
+            Disc_fake_loss = bce(Disc_fake, torch.zeros_like(Disc_fake))
+            Disc_loss = (Disc_real_loss + Disc_fake_loss) / 2
 
         disc.zero_grad()
-        d_scaler.scale(D_loss).backward()
-        d_scaler.step(opt_disc)
-        d_scaler.update()
+        disc_scaler.scale(Disc_loss).backward()
+        disc_scaler.step(opt_disc)
+        disc_scaler.update()
 
         # Train generator
         with torch.cuda.amp.autocast():
-            D_fake = disc(x, y_fake)
-            G_fake_loss = bce(D_fake, torch.ones_like(D_fake))
+            Disc_fake = disc(x, y_fake)
+            Gen_fake_loss = bce(Disc_fake, torch.ones_like(Disc_fake))
             L1 =  l1_loss(y_fake, y) * config.LAMBDA
             # loss = torch.nn.HuberLoss()
-            G_loss = G_fake_loss + L1
+            Gen_loss = Gen_fake_loss + L1
 
         opt_gen.zero_grad()
-        g_scaler.scale(G_loss).backward()
-        g_scaler.step(opt_gen)
-        g_scaler.update()
+        gen_scaler.scale(Gen_loss).backward()
+        gen_scaler.step(opt_gen)
+        gen_scaler.update()
 
         if idx % 10 == 0:
             loop.set_postfix(
-                D_real=torch.sigmoid(D_real).mean().item(),
-                D_fake=torch.sigmoid(D_fake).mean().item(),
+                Disc_real=torch.sigmoid(Disc_real).mean().item(),
+                Disc_fake=torch.sigmoid(Disc_fake).mean().item(),
             )
 
 def main(args) -> None:
@@ -288,15 +288,15 @@ def main(args) -> None:
         shuffle=True,
         num_workers=config.NUM_WORKERS,
     )
-    g_scaler = torch.cuda.amp.GradScaler()
-    d_scaler = torch.cuda.amp.GradScaler()
+    gen_scaler = torch.cuda.amp.GradScaler()
+    disc_scaler = torch.cuda.amp.GradScaler()
     val_dataset = SplitData(root_dir=config.VAL_DIR)
     val_loader = DataLoader(val_dataset, batch_size=1, shuffle=False)
     val_itr = iter(val_loader)
 
     for epoch in range(config.NUM_EPOCHS):
         train_fn(
-            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, g_scaler, d_scaler,
+            disc, gen, train_loader, opt_disc, opt_gen, L1_LOSS, BCE, gen_scaler, disc_scaler,
         )
 
         if config.SAVE_MODEL and epoch % 5 == 0:
