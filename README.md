@@ -28,6 +28,10 @@ python3 Pix2Pix.py --epochs=100 --mode=train --loadmodel=true --modelname=anime 
 ```
 Please note that the order of the flags does not matter.
 
+## Results
+![image](https://user-images.githubusercontent.com/8505291/169737757-b9ed2887-64d9-405f-9b33-fe47375debac.png)
+![image](https://user-images.githubusercontent.com/8505291/169737835-59077482-21d0-4a6d-b1bd-70bb1fa80c63.png)
+
 ## References
 [1] Lecture Slides.
 
