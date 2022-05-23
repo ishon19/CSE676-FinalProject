@@ -27,3 +27,12 @@ For instance to run the training on anime dataset while loading the saved model,
 python3 Pix2Pix.py --epochs=100 --mode=train --loadmodel=true --modelname=anime --flip=true
 ```
 Please note that the order of the flags does not matter.
+
+## References
+[1] Lecture Slides.
+
+[2] Isola, Phillip and Zhu, Jun-Yan and Zhou, Tinghui and Efros, Alexei A, "Image-to-image translation with conditional adversarial networks", pp. 1125-1134, 2017
+
+[3] Mirza, Mehdi and Osindero, Simon, "Conditional generative adversarial nets", arXiv preprint arXiv:1411.1784, 2014
+
+[4] Zhang, Richard and Isola, Phillip and Efros, Alexei A, "Colorful image colorization", European conference on computer vision, pp. 649-666, Springer, 2016
