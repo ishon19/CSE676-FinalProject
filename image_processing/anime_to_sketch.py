@@ -1,7 +1,7 @@
 import cv2
 
 
-img = cv2.imread(r"C:\Users\Naman\Desktop\CSE676-FinalProject\image_processing\Kakashi.jpg")
+img = cv2.imread(r"C:\Users\Naman\Desktop\CSE676-FinalProject\image_processing\davis.jpg")
 #print(img)
 #cv2.imshow('Kakshi', img)
 #cv2.waitKey(2000)
@@ -34,8 +34,8 @@ final = cv2.divide(rgb_2_bw, 255 - gaussian_blur, scale=255)
 cv2.imshow('sketch',final)
 cv2.waitKey(5000)
 
-cv2.imwrite('Kakashi_sketch.jpg', final)
-sketch=cv2.imread('Kakashi_sketch.jpg')
+cv2.imwrite('davis_sketch.jpg', final)
+sketch=cv2.imread('davis_sketch.jpg')
 
 print(final.shape)
 print(sketch.shape)
@@ -43,6 +43,6 @@ print(sketch.shape)
 combined=cv2.hconcat([resized_img,sketch])
 cv2.imshow('combined',combined)
 cv2.waitKey(5000)
-cv2.imwrite('Kakashi_sketch_combined.jpg', combined)
+cv2.imwrite('davis_sketch_combined.jpg', combined)
 
 #print(combined.shape)
