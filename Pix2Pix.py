@@ -223,6 +223,7 @@ class SplitData(Dataset):
         image_dim = int(image.shape[1]/2)
         # print('image shape: ', image_dim)
         flip = config.FLIP_TRAIN
+        # print('flip: ', flip)
         if flip:
             target_image = image[:, :image_dim, :]
             input_image = image[:, image_dim:, :]
@@ -242,11 +243,11 @@ class SplitData(Dataset):
         return input_image, target_image
 
 
-def get_l1_loss(weights):
+def get_l1_loss(weights) -> torch.Tensor:
     return torch.abs(weights).sum()
 
 
-def get_l2_loss(weights):
+def get_l2_loss(weights) -> torch.Tensor:
     return torch.square(weights).sum()
 
 
@@ -278,12 +279,12 @@ def train_fn(
             Disc_fake = disc(x, y_fake)
             Gen_fake_loss = bce(Disc_fake, torch.ones_like(Disc_fake))
             l1 = l1_loss(y_fake, y) * config.LAMBDA
-            # params = []
-            # for param in disc.parameters():
-            #     params.append(param.view(-1))
+            params = []
+            for param in disc.parameters():
+                params.append(param.view(-1))
             # l1 = config.LAMBDA * get_l1_loss(torch.cat(params))
-            # l2 = config.LAMBDA * get_l2_loss(torch.cat(params))
-            Gen_loss = Gen_fake_loss + l1
+            l2 = config.LAMBDA * get_l2_loss(torch.cat(params))
+            Gen_loss = Gen_fake_loss + l1 + l2
 
         opt_gen.zero_grad()
         gen_scaler.scale(Gen_loss).backward()
@@ -390,7 +391,7 @@ def main(args) -> None:
 if __name__ == "__main__":
     # setting up the argument parser to parse the command line arguments
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("--flip", default=False,
+    argparser.add_argument("--flip", default='false',
                            help="learn the left side of the image")
     argparser.add_argument(
         "--modelname", default=config.MODEL_DEFAULT, help="which model to load")
@@ -400,6 +401,8 @@ if __name__ == "__main__":
                            help="number of epochs to train")
     argparser.add_argument("--loadmodel", default=1, help='load model or not')
     args = argparser.parse_args()
+    
+    # printing the passed args to debug
     print(args)
 
     # run the main function with all the passed command line arguments
