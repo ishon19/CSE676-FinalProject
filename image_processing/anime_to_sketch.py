@@ -1,8 +1,8 @@
 import cv2
 
 
-img = cv2.imread('Kakashi.jpg')
-print(img)
+img = cv2.imread(r"C:\Users\Naman\Desktop\CSE676-FinalProject\image_processing\Kakashi.jpg")
+#print(img)
 #cv2.imshow('Kakshi', img)
 #cv2.waitKey(2000)
 
@@ -43,5 +43,6 @@ print(sketch.shape)
 combined=cv2.hconcat([resized_img,sketch])
 cv2.imshow('combined',combined)
 cv2.waitKey(5000)
+cv2.imwrite('Kakashi_sketch_combined.jpg', combined)
 
 #print(combined.shape)
