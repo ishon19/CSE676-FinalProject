@@ -22,7 +22,8 @@ Please follow below command line arguments for running the project. In general, 
 - ```--epochs``` specifies how many epochs the training should run, defaults to ```50```
 - ```--loadmodel``` specifies whether to load the saved model for futher training, defaults to ```false```
 
-For instance to run the training on edge2shoes dataset while loading the saved model, in training mode with 100 epochs, we can use below command
+For instance to run the training on anime dataset while loading the saved model, in training mode with 100 epochs, we can use below command
 ```
-python3 Pix2Pix.py --epochs=100 --mode=train --loadmodel=true --modelname=edge2shoes 
+python3 Pix2Pix.py --epochs=100 --mode=train --loadmodel=true --modelname=anime --flip=true
 ```
+Please note that the order of the flags does not matter.
