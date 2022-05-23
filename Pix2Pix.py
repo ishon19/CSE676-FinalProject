@@ -399,7 +399,7 @@ if __name__ == "__main__":
                            help='start in train or test mode')
     argparser.add_argument("--epochs", default=50,
                            help="number of epochs to train")
-    argparser.add_argument("--loadmodel", default=1, help='load model or not')
+    argparser.add_argument("--loadmodel", default='false', help='load model or not')
     args = argparser.parse_args()
     
     # printing the passed args to debug
